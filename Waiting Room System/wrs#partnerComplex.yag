@@ -63,7 +63,12 @@ Please, do not edit after this line. Code below this line that do not match the 
         {{$argument = index .CmdArgs 0}}
     {{else}}
         {{$argument = index .Message.Mentions 0}}
-        {{$isUser = true}}
+        {{if ne $argument.ID .User.ID}}
+            {{$isUser = true}}
+        {{else}}
+            {{$err = print $err " You can't partner yourself."}}
+            {{$isUser = true}}
+        {{end}}
     {{end}}
 
     {{/*Request command handled by mention*/}}
@@ -73,6 +78,8 @@ Please, do not edit after this line. Code below this line that do not match the 
             {{sendMessage nil $err}}
         {{else if ($db.Get $argument.ID).isBusy}}
             {{$err = print $err " This user already has a pending request with " (getMember ($db.Get $argument.ID).isBusy).User.Mention "."}}
+            {{sendMessage nil $err}}
+        {{else if eq .User.ID $argument.ID}}
             {{sendMessage nil $err}}
         {{else}}
             {{$db.Set .User.ID (sdict "isBusy" $argument.ID "pending" true)}}

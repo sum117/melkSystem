@@ -1,0 +1,76 @@
+{{/*
+    MADE BY: mangowhite#0001 (209208777365389312)
+    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)
+    DESCRIPTION: This command is made to verify users that are already in the server. It checks if the user has one role and gives another one on top of it.
+    RECOMMENDED TRIGGER: -idverify
+    USAGE METHOD: -idverify <@mention>
+    
+    MIT LICENSE
+    Copyright (c) 2022 mangowhite
+*/}}
+
+{{$roles:= sdict
+"adminRole" 958769495416131584
+"maleRole" 964656017059233852
+"idVerifiedMaleRole" 964656060080218192
+"femaleRole" 964656044372541452
+"idVerifiedFemaleRole" 964656101800947744
+}}
+
+{{$err:= ""}}
+
+{{$helpDb:= or (dbGet 0 "help").Value sdict}}
+{{$helpDb.Set .Cmd (sdict 
+"description" "This command is used by admins only to verify users into the server"
+"aliases" (print "no aliases available as they weren't necessary. Just `" .Cmd " <@mention>` is enough.")
+"category" "uvs"
+)}}
+
+{{if .CmdArgs}}
+    {{/*Admin Check Statement*/}}
+    {{if in .Member.Roles $roles.adminRole}}
+        {{$user:=userArg (index .CmdArgs 0)}}
+        {{$userRoles:= ""}}
+
+        {{/*Forbidden User ID Handler*/}}
+        {{if (getMember $user.ID)}}
+            {{$userRoles = (getMember $user.ID).Roles}}
+        {{else}}
+            {{$err = "Couldn't find mentioned user."}}
+        {{end}}
+
+        {{/*User Roles Handler*/}}
+        {{$run:= true}}
+        {{range $k, $v := $roles}}
+            {{if not (in (cslice "adminRole" "maleRole" "femaleRole") $k)}}
+                {{if in $userRoles $v}}
+                    {{$run = false}}
+                {{end}}
+            {{end}}
+        {{end}}
+        
+        {{/*Command Handler*/}}
+        {{if not $run}}
+            {{$err = print "❌ " $user.Mention " already has a verified role (Admin role counts as verified)."}}
+        {{else}}
+            {{if in $userRoles $roles.maleRole}}
+                {{giveRoleID $user.ID $roles.idVerifiedMaleRole}}
+                {{sendMessage nil (print "✅ Role " (getRole $roles.idVerifiedMaleRole).Mention " was given to " $user.Mention "!") }}
+            {{else if in $userRoles $roles.femaleRole}}
+                {{giveRoleID $user.ID $roles.idVerifiedFemaleRole}}
+                {{sendMessage nil (print "✅ Role " (getRole $roles.idVerifiedFemaleRole).Mention " was given to " $user.Mention "!")}}
+            {{else}}
+                {{$err = "❌ This user doesn't have a valid gender role, so the command wasn't executed."}}
+            {{end}}
+        {{end}}
+    {{else}}
+        {{$err = "❌ You're not an admin, hence you can't use this command!"}}
+    {{end}}
+{{else}}
+    {{$err = "❌ No arguments were provided for the usage of this command."}}
+{{end}}
+
+{{/*Error Handler*/}}
+{{if $err}}
+    {{sendMessage nil $err}}
+{{end}}

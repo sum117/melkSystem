@@ -16,7 +16,8 @@ Copyright (c) 2022 mangowhite
 {{$messages:= sdict
     "partnerRequest" "Yay! Someone has requested partnership with you! Will you accept?"
     "partnerAccept" "Marvelously amazing! You both are now partnered!"
-    "partnerDeny" "Aw... you got rejected... There's a lot of fish in the sea, don't give up!"}}
+    "partnerDeny" "Aw... you got rejected... There's a lot of fish in the sea, don't give up!"
+    "partnerBreakUp" "You cancelled the partnership!"}}
 
 {{$ex := or (and (reFind "a_" .Guild.Icon) "gif" ) "png" }}
 {{$icon := print "https://cdn.discordapp.com/icons/" .Guild.ID "/" .Guild.Icon "." $ex "?size=1024" }}
@@ -51,7 +52,7 @@ Please, do not edit after this line. Code below this line that do not match the 
         {{if not ($db.Get .User.ID).pending}}
             {{sendMessage nil (print "💞 Currently partnered with " $partner ".")}}
         {{else}}
-            {{sendMessage nil (print "⏲️ Currently waiting for partnership approval from " $partner ".")}}
+            {{sendMessage nil (print "⏲️ Currently waiting for partnership approval with " $partner ".")}}
         {{end}}
     {{end}}
 
@@ -82,7 +83,7 @@ Please, do not edit after this line. Code below this line that do not match the 
         {{else if eq .User.ID $argument.ID}}
             {{sendMessage nil $err}}
         {{else}}
-            {{$db.Set .User.ID (sdict "isBusy" $argument.ID "pending" true)}}
+            {{$db.Set .User.ID (sdict "isBusy" $argument.ID "pending" true "sender" true)}}
             {{$db.Set $argument.ID (sdict "isBusy" .User.ID "pending" true)}}
             {{dbSet 0 "partners" $db}}
 
@@ -96,23 +97,34 @@ Please, do not edit after this line. Code below this line that do not match the 
 
     {{/*Accept and reject commands handled by arguments*/}}
     {{else}}
+        {{$isSender:= or ($db.Get .User.ID).sender false}}
         {{if ($newPartner := ($db.Get .User.ID).isBusy)}}
             {{/*Accept command*/}}
             {{if in $aliases.accept $argument}}
-                {{($db.Get $newPartner).Set "pending" false}}
-                {{($db.Get .User.ID).Set "pending" false}}
-                {{dbSet 0 "partners" $db}}
+                {{if not $isSender}}
+                    {{($db.Get $newPartner).Set "pending" false}}
+                    {{($db.Get .User.ID).Set "pending" false}}
+                    {{dbSet 0 "partners" $db}}
 
-                {{$embed.Set "description" $messages.partnerAccept}}
-                {{sendMessage nil (complexMessage "content" (print .User.Mention " 💞 " (getMember $newPartner).User.Mention) "embed" $embed)}}
+                    {{$embed.Set "description" $messages.partnerAccept}}
+                    {{sendMessage nil (complexMessage "content" (print .User.Mention " 💞 " (getMember $newPartner).User.Mention) "embed" $embed)}}
+                {{else}}
+                    {{$err = print $err "No one requested to partner up with you, but you recently invited an user, if you want to cancel it, type `" .Cmd " deny`."}}
+                    {{sendMessage nil $err}}
+                {{end}}
             {{/*Reject command*/}}
             {{else if in $aliases.reject $argument}}
-                {{$embed.Set "description" $messages.partnerDeny}}
-                {{sendMessage nil (complexMessage "content" (getMember $newPartner).User.Mention "embed" $embed)}}
-
                 {{$db.Del $newPartner}}
                 {{$db.Del .User.ID}}
                 {{dbSet 0 "partners" $db}}
+                
+                {{if not $isSender}}
+                    {{$embed.Set "description" $messages.partnerDeny}}
+                    {{sendMessage nil (complexMessage "content" (getMember $newPartner).User.Mention "embed" $embed)}}
+                {{else}}
+                    {{$embed.Set "description" $messages.partnerBreakUp}}
+                    {{sendMessage nil (complexMessage "content" .User.Mention "embed" $embed)}}
+                {{end}}
             {{else}}
                 {{$err = print $err " No supported entries/aliases found in user input. Did you mean `" .Cmd " accept|deny (or aliases)`?"}}
                 {{sendMessage nil $err}}

@@ -25,5 +25,5 @@
      "description": "Spawns the guild icon pull operation.",
      "prefix": "guildIcon",
      "body": ["{{\\$ex := or (and (reFind \"a_\" .Guild.Icon) \"gif\" ) \"png\" }}{{\\$icon := print \"https://cdn.discordapp.com/icons/\" .Guild.ID \"/\" .Guild.Icon \".\" \\$ex \"?size=1024\" }}"]
- }
+ },
 }

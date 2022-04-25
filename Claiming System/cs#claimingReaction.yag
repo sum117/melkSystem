@@ -1,0 +1,113 @@
+{{/*
+    MADE BY: mangowhite#0001 (209208777365389312)
+    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)
+    DESCRIPTION: This is the reaction command for the Claiming System. It should be able to display information about the users and trigger a regex command depending on the chosen option. It's a very complex command with a lot of dependencies.
+    RECOMMENDED TRIGGER: Reaction Trigger
+    USAGE METHOD: Use the reactions in the embed spawned by the cs#claimingSimple
+    
+    MIT LICENSE
+    Copyright (c) 2022 mangowhite
+*/}}
+
+{{/*SETTINGS*/}}
+{{$forbiddenClaimChannel:= .Channel.ID}} {{/*<--- Please input the desired channel ID for the option two of the claiming embed (Forbidden Claim). Must be one that only ONE role has access to.*/}}
+{{$channelAccessRole:= 958769495416131584}} {{/*<--- Input here the role ID that will have access to the hidden channel.*/}}
+
+{{/*CODE*/}}
+{{define "reactionResponses"}}
+    {{/*
+    Reaction Responses Function
+    DESCRIPTION: Handles the reactions of this command.
+    PARAMS: 
+    .Guild {Guild Object} I added this object so we could retrieve the icon of the guild. Will we ever have a method for that? SMH.
+    .ReactionName <String> We need this for the function to work. It's the name of the reaction sent by the user.
+    .Vows [Array] Vows is a simple string array that contains data from another command. The function can be ran without this.
+    .User {User Object} The user who triggered the command.
+    .Target {User Object} The target to be used for the ":two:" condition.
+    .TargetOwner <String> The string to be used if the target is claimed by someone.
+    .ForbiddenClaimChannel <number> The channel ID of the forbidden claim channel used in condition ":two:"
+    .ForbiddenAccessRole <number> The ID of the role that has access to the channel above.
+    .Channel <number> The current channel ID for the comment listener.
+    */}}
+    {{$ex := or (and (reFind "a_" .Guild.Icon) "gif" ) "png" }}
+    {{$icon := print "https://cdn.discordapp.com/icons/" .Guild.ID "/" .Guild.Icon "." $ex "?size=1024" }}
+
+    {{if eq .ReactionName "1️⃣"}}
+
+        {{if .Vows}}
+            {{$embed:= cembed 
+                "title" "Vows of " .Target.Username
+                "description" (print (joinStr "\n" .Vows.StringSlice) "\n\nUser claimed by " .TargetOwner) 
+                "color" (randInt 16777215)
+                "thumbnail" (sdict "url" (.Target.AvatarURL "1024"))
+            }}
+            {{sendDM $embed}}
+            {{sendMessage nil (print "✉️ The bot tried to send you a DM with the vows of " .Target.Username ". Make sure they are open for messages.")}}
+        {{else}}
+            {{sendMessage nil (print "❌ " .Target.Username " has no vows made yet. Is that an answer from the gods?!")}}
+        {{end}}
+
+    {{else if eq .ReactionName "2️⃣"}}
+
+        {{if not .Busy}}
+            {{$embed:= cembed 
+                "title" "Forbidden Claim requested by " .User.Username
+                "description" "> Send your vows separating them with a comma below. Anything you text nwo will be considered as one. If less than two vows are set, the system will cancel the request for security reasons.\n\n⏲️ The bot won't respond after 10 minutes and you'll lose access to this channel."
+                "color" (randInt 16777215)
+                "thumbnail" (sdict "url" $icon)
+            }}
+            {{sendMessage .ForbiddenClaimChannel (complexMessage "content" .User.Mention "embed" $embed)}}
+            {{giveRoleID .User.ID .ForbiddenAccessRole}}
+            {{takeRoleID .User.ID .ForbiddenAccessRole 600}}
+            {{dbSetExpire .User.ID "vowsListener" (sdict "channel" .ForbiddenClaimChannel "user" .User) 600}}
+        {{else}}
+            {{sendMessage nil "❌ You can't request a Forbidden Claim because you are partnered with somebody else."}}
+        {{end}}
+
+    {{else if eq .ReactionName "3️⃣"}}
+
+        {{sendMessage nil "✅ Type below what you want to comment about this user. Please, follow the rules - don't be rude. Anything that you type now will be listed as a comment!\n For security reasons, comments with less than 100 characters will be denied.\n\n⚠️ The bot won't respond after 5 minutes."}}
+        {{dbSetExpire .User.ID "commentListener" (sdict "channel" .Channel "user" .User "target" .Target) 300}}
+
+    {{end}}
+
+{{end}}
+
+{{if ($reactionHandler:= (dbGet .User.ID "reactionHandler").Value)}}
+
+    {{$db:= or (dbGet 0 "partners").Value dict}}
+    {{$msgID := toInt $reactionHandler.msgID}}
+    {{$targetUser := userArg (toInt $reactionHandler.targetUser)}}
+
+    {{if (getMessage nil $msgID)}}
+
+        {{$Busy:= false}}
+        {{if (($db.Get .User.ID).Get "isBusy")}}
+            {{$Busy = true}}
+        {{end}}
+
+        {{$vows:= ""}}
+        {{if ($data:= (($db.Get $targetUser.ID).Get "vows")) }}
+            {{$vows = $data}}
+        {{end}}
+
+        {{$targetOwner:= ""}}
+        {{if ($data:= (getMember (toInt ($db.Get $targetUser.ID).isBusy)).User.Username)}}
+            {{$targetOwner:= $data}}
+        {{end}}
+
+        {{$_:=execTemplate "reactionResponses" (sdict
+        "Guild" .Guild
+        "Target" $targetUser
+        "TargetOwner" $targetOwner
+        "User" .User
+        "Busy"  $Busy
+        "Vows" $vows
+        "ReactionName" .Reaction.Emoji.Name
+        "ForbiddenClaimChannel" $forbiddenClaimChannel
+        "ForbiddenAccessRole" $channelAccessRole
+        "Channel" .Channel.ID)}}
+
+    {{end}}
+
+{{end}}

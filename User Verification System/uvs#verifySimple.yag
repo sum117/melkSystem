@@ -10,28 +10,25 @@
 */}}
 
 {{$roles:= sdict
-"adminRole" 958769495416131584
 "maleRole" 964656017059233852
 "idVerifiedMaleRole" 964656060080218192
 "femaleRole" 964656044372541452
 "idVerifiedFemaleRole" 964656101800947744
 }}
-
 {{$err:= ""}}
 
 {{$helpDb:= or (dbGet 0 "help").Value sdict}}
 {{$helpDb.Set .Cmd (sdict 
 "description" "This command is used by admins only to verify users into the server"
-"aliases" (print "no aliases available as they weren't necessary. Just `" .Cmd " <@mention>` is enough.")
 "category" "uvs"
 )}}
 
 {{if .CmdArgs}}
     {{/*Admin Check Statement*/}}
-    {{if in .Member.Roles $roles.adminRole}}
+    {{$adminCheck:= false}}{{$permissions:=execAdmin "viewperms" .User.ID}}{{if inFold $permissions "KickMembers"}}{{$adminCheck = true}}{{end}}
+    {{if $adminCheck}}
         {{$user:=userArg (index .CmdArgs 0)}}
         {{$userRoles:= ""}}
-
         {{/*Forbidden User ID Handler*/}}
         {{if (getMember $user.ID)}}
             {{$userRoles = (getMember $user.ID).Roles}}
@@ -42,7 +39,7 @@
         {{/*User Roles Handler*/}}
         {{$run:= true}}
         {{range $k, $v := $roles}}
-            {{if not (in (cslice "adminRole" "maleRole" "femaleRole") $k)}}
+            {{if not (in (cslice "maleRole" "femaleRole") $k)}}
                 {{if in $userRoles $v}}
                     {{$run = false}}
                 {{end}}
@@ -51,7 +48,7 @@
         
         {{/*Command Handler*/}}
         {{if not $run}}
-            {{$err = print "❌ " $user.Mention " already has a verified role (Admin role counts as verified)."}}
+            {{$err = print "❌ " $user.Mention " already has a verified role."}}
         {{else}}
             {{if in $userRoles $roles.maleRole}}
                 {{giveRoleID $user.ID $roles.idVerifiedMaleRole}}

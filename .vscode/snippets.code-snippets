@@ -1,7 +1,7 @@
 {
  "Presentation of Project": {
  "prefix": "presentation",
- "body": ["{{/*\n    MADE BY: mangowhite#0001 (209208777365389312)\n    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)\n    DESCRIPTION: ${1:Description}\n    RECOMMENDED TRIGGER: ${2:Recommended Trigger}\n    USAGE METHOD: ${3:Usage Method}\n    \n    MIT LICENSE\n    Copyright (c) 2022 mangowhite\n*/}}"],
+ "body": ["{{/*\n    MADE BY: sum#0117 (209208777365389312)\n    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0117 (441642976058277898)\n    DESCRIPTION: ${1:Description}\n    RECOMMENDED TRIGGER: ${2:Recommended Trigger}\n    USAGE METHOD: ${3:Usage Method}\n    \n    MIT LICENSE\n    Copyright (c) 2022 sum\n*/}}"],
  "description": "Presents the current custom command to user." 
  },
 

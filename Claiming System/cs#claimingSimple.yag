@@ -1,12 +1,12 @@
 {{/*
-    MADE BY: mangowhite#0001 (209208777365389312)
-    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)
+    MADE BY: sum#0117 (209208777365389312)
+    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0117 (441642976058277898)
     DESCRIPTION: This command is a startup for the claiming reaction system. It"s made to request an embed with reactions which listener will be in another file.
     RECOMMENDED TRIGGER: -claiming
     USAGE METHOD: -claiming <user>
     
     MIT LICENSE
-    Copyright (c) 2022 mangowhite
+    Copyright (c) 2022 sum
 */}}
 
 {{/*CODE - DO NOT EDIT WITHOUT PROPER KNOWLEDGE*/}}

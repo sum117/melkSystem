@@ -1,12 +1,12 @@
 {{/*
-    MADE BY: mangowhite#0001 (209208777365389312)
-    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)
+    MADE BY: sum#0117 (209208777365389312)
+    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0117 (441642976058277898)
     DESCRIPTION: This is the reaction command for the Claiming System. It should be able to display information about the users and trigger a regex command depending on the chosen option. It's a very complex command with a lot of dependencies.
     RECOMMENDED TRIGGER: Reaction Trigger
     USAGE METHOD: Use the reactions in the embed spawned by the cs#claimingSimple
     
     MIT LICENSE
-    Copyright (c) 2022 mangowhite
+    Copyright (c) 2022 sum
 */}}
 
 {{/*SETTINGS*/}}

@@ -1,12 +1,12 @@
 {{/*
-    MADE BY: mangowhite#0001 (209208777365389312)
-    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0001 (441642976058277898)
+    MADE BY: sum#0117 (209208777365389312)
+    REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0117 (441642976058277898)
     DESCRIPTION: This command is made to verify users that are already in the server. It checks if the user has one role and gives another one on top of it.
     RECOMMENDED TRIGGER: -idverify
     USAGE METHOD: -idverify <@mention>
     
     MIT LICENSE
-    Copyright (c) 2022 mangowhite
+    Copyright (c) 2022 sum
 */}}
 
 {{$roles:= sdict

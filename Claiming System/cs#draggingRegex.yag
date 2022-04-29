@@ -1,0 +1,59 @@
+{{/*
+MADE BY: sum#0117 (209208777365389312)
+REQUESTED BY: 𝑴𝒆𝒍𝒌 𝑻𝒆𝒓𝒕𝒋𝒊𝒆♡☘#0117 (441642976058277898)
+DESCRIPTION: A command that works in a similar way to the mute one, but instead of removing the permissions to talk in all channels, it does it for just one. It has a role requirement to work. Target wise. 
+RECOMMENDED TRIGGER: Recommended Trigger
+USAGE METHOD: Usage Method
+
+MIT LICENSE
+Copyright (c) 2022 sum117
+*/}}
+
+{{/*SETTINGS*/}}
+
+{{$dragRole:= inputSomeRoleId}}
+
+{{/*CODE*/}}
+
+{{$db:= (dbGet .User.ID "dragged")}}
+
+{{if and $db (in .Member.Roles $dragRole)}}
+
+    {{$dragChannel:= $db.Value.channel}}
+    
+    {{if ne .Channel.ID $dragChannel}}
+
+        {{$dragTimeLeft:= (sub $db.ExpiresAt.Unix currentTime.Unix)}}
+        {{$warningCount := or $db.Value.warningCount 1}}
+
+        {{deleteMessage 0}}
+
+        {{$db.Value.Set "warningCount" (add $warningCount 1)}}
+
+        {{if ge $warningCount 5}}
+
+            {{deleteMessage 
+                (sendMessageRetID nil 
+                    (printf "❌ You have been dragged to <#%d>, you're locked to it for **%s**." $dragChannel (toDuration $dragTimeLeft))
+                ) 
+            5}}
+
+            {{$warningCount = 0}}
+            {{$db.Value.Set "warningCount" $warningCount}}
+
+        {{end}}
+
+        {{dbSetExpire .User.ID "dragged" $db $dragTimeLeft}}
+
+    {{end}}
+
+{{end}}
+
+
+
+
+
+
+
+
+

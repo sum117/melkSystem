@@ -51,8 +51,8 @@
 
         {{if not .Busy}}
             {{$embed:= cembed 
-                "title" "Forbidden Claim requested by " .User.Username
-                "description" "> Send your vows separating them with a comma below. Anything you text nwo will be considered as one. If less than two vows are set, the system will cancel the request for security reasons.\n\n⏲️ The bot won't respond after 10 minutes and you'll lose access to this channel."
+                "title" (print "Forbidden Claim requested by " .User.Username)
+                "description" "> Send your vows separating them with a comma below. Anything you text now will be considered as one. If less than two vows are set, the system will cancel the request for security reasons.\n\n⏲️ The bot won't respond after 10 minutes and you'll lose access to this channel."
                 "color" (randInt 16777215)
                 "thumbnail" (sdict "url" $icon)
             }}
@@ -90,10 +90,9 @@
         {{if ($data:= (($db.Get $targetUser.ID).Get "vows")) }}
             {{$vows = $data}}
         {{end}}
-
         {{$targetOwner:= ""}}
-        {{if ($data:= (getMember (toInt ($db.Get $targetUser.ID).isBusy)).User.Username)}}
-            {{$targetOwner:= $data}}
+        {{if ($ownerExists:=($db.Get $targetUser.ID).Get "isBusy")}}
+            {{$targetOwner =  (getMember $ownerExists)}}
         {{end}}
 
         {{$_:=execTemplate "reactionResponses" (sdict

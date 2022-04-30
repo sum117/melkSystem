@@ -28,7 +28,11 @@
 
         {{if ($userStatus:=$db.Get $user.ID)}}
             {{if not $userStatus.pending}}
-                {{$claimState = print "claimed by " (getMember (toInt $userStatus.isBusy)).User.Mention}}
+                {{if ($memberExists:=getMember (toInt $userStatus.isBusy))}}
+                    {{$claimState = print "claimed by " $memberExists.User.Mention}}
+                {{else}}
+                    {{$claimState = print "alone because their partner left the server."}}
+                {{end}}
             {{end}}
         {{end}}
         {{$instructions:= printf  "This is the panel to the user %s!\n\nThey are currently %s.\nAccess their information using the reactions below:\n1️⃣ Get a DM with the current vows of the user.\n2️⃣ Propose Forbidden Claim\n3️⃣ Comment about this user." $user.Username (or $claimState "not claimed by anyone.")}}
